@@ -1,8 +1,10 @@
 <?
 
+$GPIO = 17;
+
 $MODE = array(	0	=>	'OFF',
 		1	=>	'COOL',
-		2	=> 	'ICE
+		2	=> 	'ICE',
 	);
 
  ?>

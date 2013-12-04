@@ -2,6 +2,8 @@
 
  include('common.php');
 
+ $GPIO_FILE = sprintf('/sys/class/gpio/gpio%s/value', $GPIO);
+
  # Common conection to MySql
  $link = mysql_connect('localhost', 'php', 'xy6Cf3oF7dBBVoWrJwiXbUc4E2CHlg9H')
   or die('Could not connect: ' . mysql_error());
@@ -34,14 +36,17 @@
    $set = $cfg['night'];
   }
 
-  printf("CURRENT: %s, CONTROL: %s\n", $temperature, $set);
   if ($temperature > $set) {
    # Room temperature is warm.
-   file_put_contents('/sys/class/gpio/gpio4/value', "1");
+   file_put_contents($GPIO_FILE, "1");
+   $m = 1;
   } else {
    # Room temperature is ok.
-   file_put_contents('/sys/class/gpio/gpio4/value', "0");
+   file_put_contents($GPIO_FILE, "0");
+   $m = 0;
   }
+
+  printf("CURRENT: %s,  CONTROL: %s,  MODE: %s\n", $temperature, $set, $MODE[ $m ]);
 
   sleep(3);
  }
