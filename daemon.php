@@ -2,8 +2,6 @@
 
  include('common.php');
 
- $GPIO_FILE = sprintf('/sys/class/gpio/gpio%s/value', $GPIO);
-
  # Common conection to MySql
  $link = mysql_connect('localhost', 'php', 'xy6Cf3oF7dBBVoWrJwiXbUc4E2CHlg9H')
   or die('Could not connect: ' . mysql_error());
@@ -38,18 +36,34 @@
 
   if ($temperature > $set) {
    # Room temperature is warm.
-   file_put_contents($GPIO_FILE, "1");
-   $m = 1;
+   printf("+");
+   if ($current_mode != 1) {
+    change_hvac(1);
+    $last_change = time();
+    printf("\nCURRENT: %s,  CONTROL: %s,  NOW MODE: %s\n", $temperature, $set, $MODE[ 1 ]);
+   }
+   $current_mode = 1;
   } else {
-   # Room temperature is ok.
-   file_put_contents($GPIO_FILE, "0");
-   $m = 0;
+   # Room temperature is cool.
+   printf("-");
+   if ($current_mode != 0) {
+    change_hvac(0);
+    $last_change = time();
+    printf("\nCURRENT: %s,  CONTROL: %s,  NOW MODE: %s\n", $temperature, $set, $MODE[ 0 ]);
+   }
+   $current_mode = 0;
   }
 
-  printf("CURRENT: %s,  CONTROL: %s,  MODE: %s\n", $temperature, $set, $MODE[ $m ]);
+#  printf("CURRENT: %s,  CONTROL: %s,  MODE: %s\n", $temperature, $set, $MODE[ $m ]);
 
   sleep(3);
  }
+
+function change_hvac($mode) {
+ global $GPIO;
+ $GPIO_FILE = sprintf('/sys/class/gpio/gpio%s/value', $GPIO);
+ file_put_contents($GPIO_FILE, $mode);
+}
 
 
  ?>
